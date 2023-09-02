@@ -1,7 +1,7 @@
 module Utils
     implicit none
     private
-    public :: loadToken, int_to_str
+    public :: loadToken, int_to_str, startsWith, replaceStr
     
     contains
     function loadToken() result(token)
@@ -52,4 +52,56 @@ module Utils
         ! Deallocate the temporary array
         deallocate(nums)
     end function int_to_str
+
+    ! https://github.com/ecasglez/FortranUtilities/blob/master/src/Strings_M.F90#L527
+    function startsWith(str, substr) RESULT(res)
+        character(LEN=*), intent(in) :: str
+        character(LEN=*), intent(in) :: substr
+        logical                      :: res
+        res = INDEX(str,substr) == 1
+    end function startsWith
+
+    ! https://stackoverflow.com/a/58980957
+    pure recursive function replaceStr(string, search, substitute, count) result(modifiedString)
+        implicit none
+        character(len=*), intent(in)  :: string, search, substitute
+        integer, optional, intent(in) :: count
+        character(len=:), allocatable :: modifiedString
+        integer :: i, stringLen, searchLen
+        integer :: default_count
+
+        if (present(count)) then
+            default_count = count
+        else
+            default_count = -1
+        end if
+
+        stringLen = len(string)
+        searchLen = len(search)
+        if (stringLen==0 .or. searchLen==0) then
+            modifiedString = ""
+            return
+        elseif (stringLen<searchLen) then
+            modifiedString = string
+            return
+        end if
+        i = 1
+        do
+            ! break cycle
+            if (default_count /= -1 .and. i == default_count) then
+                exit
+            end if
+            
+            if (string(i:i+searchLen-1)==search) then
+                modifiedString = string(1:i-1) // substitute // replaceStr(string(i+searchLen:stringLen),search,substitute)
+                exit
+            end if
+            if (i+searchLen>stringLen) then
+                modifiedString = string
+                exit
+            end if
+            i = i + 1
+            cycle
+        end do
+    end function replaceStr
 end module
