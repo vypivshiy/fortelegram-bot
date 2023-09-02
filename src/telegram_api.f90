@@ -10,14 +10,13 @@ module Api
     contains
     ! telegram API methods
     function getUpdates(token) result(json)
-        ! getUpdates method
         character(:), allocatable, intent(in) :: token
         character(:), allocatable             :: api_url
         character(:), allocatable             :: payload
         type(json_file)                       :: json
 
         ! in this example allowed only message events update
-        payload = '{"allowed_updates": ["message"], "timeout": 10}'
+        payload = '{"allowed_updates": ["message"], "timeout": 10, "offset": 1}'
 
         api_url = "https://api.telegram.org/bot"//token//"/getUpdates"
         json = request_POST(api_url, payload) 
@@ -76,25 +75,24 @@ module Api
         character(:), allocatable             :: api_url
         character(:), allocatable             :: payload
         type(json_file)                       :: json
-        chat_id_str = int_to_str(chat_id)
 
         api_url = "https://api.telegram.org/bot"//token//"/sendAudio"
         payload = '{"chat_id":'\\chat_id\\'}'
         json = request_Multipart(api_url, filename, payload)
 
     end function
+    ! end telegram API methods
 
-
-    ! base request function
     function request_POST(api_url, payload) result(json)
+        ! base request function
         ! api URL
         character(:), allocatable, intent(in) :: api_url
         ! POST payload data
         character(:), allocatable, intent(in) :: payload
         ! HEADERS
         type(pair_type), allocatable :: req_header(:)
+        ! response 
         type(response_type) :: response
-        ! respone
         type(json_file) :: json
 
         req_header = [pair_type('Content-Type', 'application/json')]
@@ -140,7 +138,7 @@ module Api
         
         call json%initialize()
         call json%deserialize(response%content)
-        ! debug json read status
+        ! debug print
         if (json%failed()) then
             print*, "JSON DESERIALIZE FAIL"
         else
