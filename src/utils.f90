@@ -7,6 +7,7 @@ module Utils
 
     ! https://github.com/ecasglez/FortranUtilities/blob/master/src/Strings_M.F90#L527
     function startsWith(str, substr) RESULT(res)
+        ! Checks if a string starts with a given substring.
         character(LEN=*), intent(in) :: str
         character(LEN=*), intent(in) :: substr
         logical                      :: res
@@ -15,9 +16,11 @@ module Utils
 
     ! https://stackoverflow.com/a/58980957
     pure recursive function replaceStr(string, search, substitute, count) result(modifiedString)
-        implicit none
+        ! Searches and replaces a substring in a string     
         character(len=*), intent(in)  :: string, search, substitute
+        ! Number specifying how many occurrences of the old value you want to replace. Default all
         integer, optional, intent(in) :: count
+
         character(len=:), allocatable :: modifiedString
         integer :: i, stringLen, searchLen
         integer :: default_count
@@ -57,7 +60,9 @@ module Utils
         end do
     end function replaceStr
 
+    ! https://github.com/rajkumardongre/github-org-analyzer/blob/master/src/utils.f90#L17
     function int_to_str(int) result(str)
+        ! convert integer to string
         integer, intent(in) :: int
         character(:), allocatable :: str
         integer :: j, temp, rem

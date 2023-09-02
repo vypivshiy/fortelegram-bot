@@ -1,4 +1,5 @@
 module Api
+    ! minimal telegram API implementation
     use json_module, only: json_file
 
     use http, only : request, response_type, HTTP_POST, pair_type
@@ -15,11 +16,12 @@ module Api
         character(:), allocatable             :: payload
         type(json_file)                       :: json
 
+        ! payload for POST request
         ! in this example allowed only message events update
-        ! the limit is set to 1 to avoid writing event processing logic
         payload = '{"allowed_updates": ["message"]}'
-
+        ! build API url
         api_url = "https://api.telegram.org/bot"//token//"/getUpdates"
+        ! send request and return `json_file` variable
         json = request_POST(api_url, payload) 
         
     end function
@@ -40,12 +42,16 @@ module Api
     end function
 
     function sendMessage(token, chat_id, text) result(json)
+        !! send message
+        ! variables for request
         character(:), allocatable, intent(in) :: token
-        character(:), allocatable, intent(in) :: text
-        character(:), allocatable, intent(in) :: chat_id
         character(:), allocatable             :: api_url
         character(:), allocatable             :: payload
         type(json_file)                       :: json
+        ! msg text
+        character(:), allocatable, intent(in) :: text
+        ! userid/chat_id/username
+        character(:), allocatable, intent(in) :: chat_id
 
         payload = '{"text":"'//text//'","chat_id":'//chat_id//'}'
         print*, payload
@@ -55,16 +61,19 @@ module Api
     end function
 
     function request_POST(api_url, payload) result(json)
-        ! base request function
+        !! base request function for telegram API
         ! api URL
         character(:), allocatable, intent(in) :: api_url
-        ! POST payload data
+        ! POST payload
         character(:), allocatable, intent(in) :: payload
-        ! HEADERS
-        type(pair_type), allocatable :: req_header(:)
-        ! response 
-        type(response_type) :: response
-        type(json_file) :: json
+        ! http variables
+        type(pair_type), allocatable          :: req_header(:)
+        type(response_type)                   :: response
+        type(json_file)                       :: json
+        !! api errors checks
+        character(:), allocatable             :: api_error_code
+        logical                               :: found
+        
 
         req_header = [pair_type('Content-Type', 'application/json')]
         response = request(api_url, method=HTTP_POST, data=payload, header=req_header)
@@ -74,29 +83,41 @@ module Api
         end if
         print*, response%content
         
+        ! deserialize response 
         call json%initialize()
         call json%deserialize(response%content)
-        ! debug json read status
+
+        ! check parse status
         if (json%failed()) then
-            print*, "JSON DESERIALIZE FAIL"
+            print*, "JSON DESERIALIZE FAIL", char(10)  ! \n delimeter
         else
-            print*, "JSON DESERIALIZE OK"
+            print*, "JSON DESERIALIZE OK", char(10)  ! \n delimeter
+            ! check api error_code
+            call json%get("error_code", api_error_code, found)
+
+            if (found) then
+                print *, "API return ", api_error_code, " exit"
+                stop
+            endif
         end if
-        print*, ""
     end function
 
     function last_update_index(json) result(index_str)
-        type(json_file) :: json
-
+        !! method for getUpdates response. return last index
+        ! response
+        type(json_file)             :: json
+        logical                     :: found
+        
+        ! last index variables
         character(:), allocatable   :: index_str
         character(:), allocatable   :: tmp
         integer                     :: i
-        logical                     :: found
-        index_str = "0"
+
         do i = 1, 101
             index_str = int_to_str(i)
             call json%get("result["//index_str//"].update_id", tmp, found)
             if (.not. found) then
+                ! return last index
                 index_str = int_to_str(i-1)
                 exit
             end if

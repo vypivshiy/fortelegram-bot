@@ -5,53 +5,60 @@ program main
   use Api, only: getUpdates, last_update_index
   use Commands
   implicit none
-  
-  character(:), allocatable :: TOKEN
+
+  ! read ENV variables
+  character(len=120) :: VARIABLE
+  character(len=:), allocatable :: TOKEN
   integer :: status
-  character(:), allocatable :: resp_content
-  ! getUpdates delay
+  
+  ! getUpdates delay, seconds
   integer                   :: delay_updates = 1
   ! update_id
   character(:), allocatable :: update_id
   character(:), allocatable :: recived_update_id
   ! msg data
-  ! result[1].message.from
+  ! result[1].message.from signature
   character(:), allocatable :: chat_id
   character(:), allocatable :: first_name
   character(:), allocatable :: username
   character(:), allocatable :: text
+  ! update data index
   character(:), allocatable :: chat_id_str
   character(:), allocatable :: update_i
   ! response handle variables
   type(json_file)           :: json
   logical :: found
-  ! sys argv
-  integer :: num_args
 
-  ! set update_id value
+  ! get token from ENV
+  call get_environment_variable("BOT_TOKEN", VARIABLE, status)
+  TOKEN = trim(VARIABLE)
+  if (status /= 0) then
+    ! ok
+    print*, "Get bot token from variable"
+  else
+    print*, "Error get variable. Please, add variable BOT_TOKEN=<TOKEN>"
+    stop
+  end if
+
+  ! last update_id cache
   update_id = ""
 
-  ! read telegram bot token file
-  num_args = command_argument_count()
-  if (num_args == 0) then
-    print*, "Usage: ftg-bot <bot_token>"
-    stop
-  else
-    call get_command_argument(2, TOKEN)
-    TOKEN = trim(TOKEN)
-    print*, TOKEN
-  end if
-  ! bot loop
+  ! bot loop, handle updates, commands
   do
-    ! check updates
     json = getUpdates(TOKEN)
+    ! get last update index item
     update_i = last_update_index(json)
 
     call json%get('result['//update_i//'].update_id', recived_update_id, found)
-    print*, "update_id ", update_id, " recived ", recived_update_id
     ! detect update
     if (found .and. recived_update_id /= update_id) then
-      ! set last update id
+      ! first startup check, store update_id
+      if (len(update_id) == 0) then
+        update_id = recived_update_id
+        cycle
+      end if
+
+      ! store update_id
       update_id = recived_update_id
       
       ! parse update event
@@ -62,6 +69,7 @@ program main
       print*, chat_id
 
       ! commands handle
+      ! if command not founded - print help msg
       if (startsWith(text, "hello")) then
         json = greetings(TOKEN, chat_id)
       else if (startsWith(text, "!echo ")) then
@@ -71,10 +79,7 @@ program main
       else
         json = cmd_help(TOKEN, chat_id)
       end if
-
-      ! end commands
-    else
-      print*, "no updates"
+      ! end commands handle
     end if
     call sleep(delay_updates)
   end do
