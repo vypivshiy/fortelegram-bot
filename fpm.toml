@@ -23,3 +23,4 @@ source-form = "free"
 http.git = "https://github.com/fortran-lang/http-client.git"
 stdlib = "*"
 json-fortran = { git = "https://github.com/jacobwilliams/json-fortran.git" }
+FLAP = { git = "https://github.com/szaghi/FLAP/.git"}
