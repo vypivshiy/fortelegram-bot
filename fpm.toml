@@ -20,6 +20,6 @@ implicit-external = false
 source-form = "free"
 
 [dependencies]
-http = { git = "https://github.com/fortran-lang/http-client.git" }
-json-fortran = { git = "https://github.com/jacobwilliams/json-fortran.git"}
+http.git = "https://github.com/fortran-lang/http-client.git"
 stdlib = "*"
+json-fortran = { git = "https://github.com/jacobwilliams/json-fortran.git" }
