@@ -2,6 +2,8 @@
 
 A simple telegram bot implementation, written in fortran
 
+https://github.com/vypivshiy/ftg-bot/assets/59173419/96699867-beb3-4501-b03d-1a95f2e78f18
+
 ## Prerequisites
 
 - Fortran compiler
