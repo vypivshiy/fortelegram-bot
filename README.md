@@ -2,6 +2,13 @@
 
 A simple telegram bot implementation, written in fortran
 
+## Prerequisites
+
+- Fortran compiler
+- On Ubuntu, you need to install the curl development headers. Use the following command:
+
+`sudo apt install -y libcurl4-openssl-dev`
+
 ## Installation
 
 1. Clone repo 
