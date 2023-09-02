@@ -15,7 +15,7 @@ https://github.com/vypivshiy/ftg-bot/assets/59173419/96699867-beb3-4501-b03d-1a9
 
 1. Clone repo 
 ```shell
-git clone https://github.com/vypivshiy/ftg-bot
+git clone https://github.com/vypivshiy/fortelegram-bot
 ```
 2. Add bot token variable
 
@@ -30,7 +30,7 @@ set BOT_TOKEN "YOUR_BOT_TOKEN"
 ```
 3. Compile the package using fpm: 
 ```shell
-cd ftg-bot
+cd fortelegram-bot
 fpm build
 fpm run
 ```
