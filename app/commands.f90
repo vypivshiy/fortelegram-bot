@@ -6,7 +6,7 @@ module Commands
 
     implicit none
     private
-    public :: echo, greetings
+    public :: echo, greetings, cmd_help, send_cat
 
     contains
 
@@ -35,4 +35,27 @@ module Commands
         msg = "hi!"
         json = sendMessage(token, chat_id, msg)
     end function
+
+    function cmd_help(token, chat_id) result (json)
+        character(:), allocatable, intent(in) :: token
+        character(:), allocatable, intent(in) :: chat_id
+        character(:), allocatable             :: msg
+
+        type(json_file) :: json
+
+        msg = "help commads:"// CHAR(10) // "hello - hi!"// CHAR(10) //"!echo <string> - duplicate string"
+        json = sendMessage(token, chat_id, msg)
+    end function
+
+    function send_cat(token, chat_id) result (json)
+        character(:), allocatable, intent(in) :: token
+        character(:), allocatable, intent(in) :: chat_id
+        character(:), allocatable             :: photo
+
+        type(json_file) :: json
+        ! yes, this hardcoded url
+        photo = "https://upload.wikimedia.org/wikipedia/commons/a/a5/Red_Kitten_01.jpg"
+        json = sendMessage(token, chat_id, photo)
+    end function
+
 end module

@@ -3,7 +3,7 @@ program main
   use json_module, only: json_file
   use Utils, only: loadToken, startsWith, replaceStr
   use Api, only: getUpdates, last_update_index
-  use Commands, only: greetings, echo
+  use Commands
   implicit none
   
   character(:), allocatable :: TOKEN
@@ -34,6 +34,7 @@ program main
 
   ! bot loop
   do
+    ! check updates
     json = getUpdates(TOKEN)
     update_i = last_update_index(json)
 
@@ -41,10 +42,10 @@ program main
     print*, "update_id ", update_id, " recived ", recived_update_id
     ! detect update
     if (found .and. recived_update_id /= update_id) then
-      print*, 'changed update_id!'
+      ! set last update id
       update_id = recived_update_id
       
-      ! extract last update event
+      ! parse update event
       call json%get('result['//update_i//'].message.from.id', chat_id, found)
       call json%get('result['//update_i//'.message.from.first_name', first_name, found)
       call json%get('result['//update_i//'].message.from.username', username, found)
@@ -52,10 +53,14 @@ program main
       print*, chat_id
 
       ! commands handle
-      if (text == "hello") then
+      if (startsWith(text, "hello")) then
         json = greetings(TOKEN, chat_id)
       else if (startsWith(text, "!echo ")) then
         json = echo(TOKEN, chat_id, text)
+      else if (text == "!cat") then
+        json = send_cat(TOKEN, chat_id)
+      else
+        json = cmd_help(TOKEN, chat_id)
       end if
 
       ! end commands
