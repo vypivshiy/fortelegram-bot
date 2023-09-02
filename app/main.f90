@@ -1,12 +1,13 @@
 program main
   ! bot entrypoint
   use json_module, only: json_file
-  use Utils, only: loadToken, startsWith, replaceStr
+  use Utils, only: startsWith, replaceStr
   use Api, only: getUpdates, last_update_index
   use Commands
   implicit none
   
   character(:), allocatable :: TOKEN
+  integer :: status
   character(:), allocatable :: resp_content
   ! getUpdates delay
   integer                   :: delay_updates = 1
@@ -24,14 +25,22 @@ program main
   ! response handle variables
   type(json_file)           :: json
   logical :: found
+  ! sys argv
+  integer :: num_args
+
   ! set update_id value
   update_id = ""
 
-  print*, "read token file"
   ! read telegram bot token file
-  TOKEN = loadToken()
-  print*, "done"
-
+  num_args = command_argument_count()
+  if (num_args == 0) then
+    print*, "Usage: ftg-bot <bot_token>"
+    stop
+  else
+    call get_command_argument(2, TOKEN)
+    TOKEN = trim(TOKEN)
+    print*, TOKEN
+  end if
   ! bot loop
   do
     ! check updates

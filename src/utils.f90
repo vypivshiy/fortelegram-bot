@@ -1,19 +1,9 @@
 module Utils
     implicit none
     private
-    public :: loadToken, startsWith, replaceStr, int_to_str
+    public :: startsWith, replaceStr, int_to_str
     
     contains
-    function loadToken() result(token)
-        !! load token from file `.token`
-        character(:), allocatable :: token
-        character(32)             :: filename = '.token'
-        integer                   :: unit
-        
-        open(unit, file=filename, status='old', action='read')
-        read(unit, '(A)') token
-        close(unit) 
-    end function
 
     ! https://github.com/ecasglez/FortranUtilities/blob/master/src/Strings_M.F90#L527
     function startsWith(str, substr) RESULT(res)
