@@ -17,8 +17,18 @@ https://github.com/vypivshiy/ftg-bot/assets/59173419/96699867-beb3-4501-b03d-1a9
 ```shell
 git clone https://github.com/vypivshiy/ftg-bot
 ```
+2. Add bot token variable
 
-2. Compile the package using fpm: 
+bash
+```shell
+export BOT_TOKEN="YOUR_BOT_TOKEN"
+```
+
+fish
+```
+set BOT_TOKEN "YOUR_BOT_TOKEN"
+```
+3. Compile the package using fpm: 
 ```shell
 cd ftg-bot
 fpm build
