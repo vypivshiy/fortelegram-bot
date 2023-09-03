@@ -4,10 +4,11 @@ module Api
 
     use http, only : request, response_type, HTTP_POST, pair_type
     use Utils, only: int_to_str
+    use types, only: update_t, message_t
     implicit none
 
     private
-    public :: getUpdates, getMe, sendMessage, last_update_index
+    public :: getUpdates, getMe, sendMessage, getLastUpdateT
     contains
     ! telegram API methods
     function getUpdates(token) result(json)
@@ -122,6 +123,37 @@ module Api
                 exit
             end if
         end do
+    end function
+
+    function getLastUpdateT(json) result(update)
+        ! get last update_t event type
+        type(json_file)  :: json
+        logical :: found
+        type(update_t) :: update
+        type(message_t) :: message
+
+        character(:), allocatable :: i
+
+        character(:), allocatable :: update_id
+        character(:), allocatable :: chat_id
+        character(:), allocatable :: first_name
+        character(:), allocatable :: username
+        character(:), allocatable :: text
+        
+
+        ! get last index (string)
+        i = last_update_index(json)
+        ! parse json
+        call json%get('result['//i//'].update_id', update_id, found)
+        call json%get('result['//i//'].message.from.id', chat_id, found)
+        call json%get('result['//i//'.message.from.first_name', first_name, found)
+        call json%get('result['//i//'].message.from.username', username, found)
+        call json%get('result['//i//'].message.text', text, found)
+        message = message_t(chat_id=chat_id, &
+                            first_name=first_name, &
+                            username=username, &
+                            text=text)
+        update = update_t(update_id=update_id, message=message)
     end function
     
 end module Api

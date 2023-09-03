@@ -2,7 +2,8 @@ program main
   ! bot entrypoint
   use json_module, only: json_file
   use Utils, only: startsWith, replaceStr
-  use Api, only: getUpdates, last_update_index
+  use Api, only: getUpdates, getMe, getLastUpdateT
+  use types, only: update_t
   use Commands
   implicit none
 
@@ -10,24 +11,15 @@ program main
   character(len=120) :: VARIABLE
   character(len=:), allocatable :: TOKEN
   integer :: status
-  
   ! getUpdates delay, seconds
   integer                   :: delay_updates = 1
-  ! update_id
+  ! storage last update_id
   character(:), allocatable :: update_id
-  character(:), allocatable :: recived_update_id
-  ! msg data
-  ! result[1].message.from signature
-  character(:), allocatable :: chat_id
-  character(:), allocatable :: first_name
-  character(:), allocatable :: username
-  character(:), allocatable :: text
-  ! update data index
-  character(:), allocatable :: chat_id_str
-  character(:), allocatable :: update_i
   ! response handle variables
   type(json_file)           :: json
   logical :: found
+  ! getUpdate derived type item
+  type(update_t) :: update
 
   ! get token from ENV
   call get_environment_variable("BOT_TOKEN", VARIABLE, status)
@@ -40,47 +32,32 @@ program main
     stop
   end if
 
-  ! last update_id cache
-  update_id = ""
-
-  ! bot loop, handle updates, commands
+  json = getUpdates(TOKEN)
+  update = getLastUpdateT(json)
+  ! first startup storage last update_id
+  update_id = update%update_id
+  ! bot loop: handle updates, commands
   do
+    ! create last update_t type
     json = getUpdates(TOKEN)
-    ! get last update index item
-    update_i = last_update_index(json)
-
-    call json%get('result['//update_i//'].update_id', recived_update_id, found)
+    update = getLastUpdateT(json)
     ! detect update
-    if (found .and. recived_update_id /= update_id) then
-      ! first startup check, store update_id
-      if (len(update_id) == 0) then
-        update_id = recived_update_id
-        cycle
-      end if
-
-      ! store update_id
-      update_id = recived_update_id
-      
-      ! parse update event
-      call json%get('result['//update_i//'].message.from.id', chat_id, found)
-      call json%get('result['//update_i//'.message.from.first_name', first_name, found)
-      call json%get('result['//update_i//'].message.from.username', username, found)
-      call json%get('result['//update_i//'].message.text', text, found)
-      print*, chat_id
-
+    if (update%update_id /= update_id) then
+      ! store last update_id
+      update_id = update%update_id
       ! commands handle
       ! if command not founded - print help msg
-      if (startsWith(text, "hello")) then
-        json = greetings(TOKEN, chat_id)
-      else if (startsWith(text, "!echo ")) then
-        json = echo(TOKEN, chat_id, text)
-      else if (text == "!cat") then
-        json = send_cat(TOKEN, chat_id)
+      if (startsWith(update%message%text, "hello")) then
+        json = greetings(TOKEN, update%message%chat_id)
+      else if (startsWith(update%message%text, "!echo ")) then
+        json = echo(TOKEN, update%message%chat_id, update%message%text)
+      else if (update%message%text == "!cat") then
+        json = send_cat(TOKEN, update%message%chat_id)
       else
-        json = cmd_help(TOKEN, chat_id)
+        json = cmd_help(TOKEN, update%message%chat_id)
       end if
       ! end commands handle
     end if
     call sleep(delay_updates)
   end do
-end program main
+end program
