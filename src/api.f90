@@ -30,6 +30,7 @@ module Api
 
     function getMe(token) result(json)
         !! FIXME: json%deserialize not work!
+        !! https://github.com/jacobwilliams/json-fortran/issues/540
         character(:), allocatable, intent(in) :: token
         character(:), allocatable             :: api_url
         character(:), allocatable             :: payload
@@ -65,6 +66,7 @@ module Api
         !! base request function for telegram API
         ! api URL
         character(:), allocatable, intent(in) :: api_url
+        ! POST payload
         ! POST payload
         character(:), allocatable, intent(in) :: payload
         ! http variables

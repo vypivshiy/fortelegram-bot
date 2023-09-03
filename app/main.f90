@@ -45,6 +45,7 @@ program main
     if (update%update_id /= update_id) then
       ! store last update_id
       update_id = update%update_id
+      
       ! commands handle
       ! if command not founded - print help msg
       if (startsWith(update%message%text, "hello")) then
