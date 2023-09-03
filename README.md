@@ -2,6 +2,8 @@
 
 A simple telegram bot implementation, written in fortran
 
+https://github.com/vypivshiy/ftg-bot/assets/59173419/96699867-beb3-4501-b03d-1a95f2e78f18
+
 ## Prerequisites
 
 - Fortran compiler
@@ -13,12 +15,22 @@ A simple telegram bot implementation, written in fortran
 
 1. Clone repo 
 ```shell
-git clone https://github.com/vypivshiy/ftg-bot
+git clone https://github.com/vypivshiy/fortelegram-bot
+```
+2. Add bot token variable
+
+bash
+```shell
+export BOT_TOKEN="YOUR_BOT_TOKEN"
 ```
 
-2. Compile the package using fpm: 
+fish
+```
+set BOT_TOKEN "YOUR_BOT_TOKEN"
+```
+3. Compile the package using fpm: 
 ```shell
-cd ftg-bot
+cd fortelegram-bot
 fpm build
 fpm run
 ```
